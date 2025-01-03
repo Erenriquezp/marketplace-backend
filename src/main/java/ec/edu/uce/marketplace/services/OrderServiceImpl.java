@@ -2,10 +2,11 @@ package ec.edu.uce.marketplace.services;
 
 import ec.edu.uce.marketplace.entities.Order;
 import ec.edu.uce.marketplace.repositories.OrderRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,20 +20,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public Page<Order> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Order> findByUserId(Long userId, Pageable pageable) {
+        return orderRepository.findByUserId(userId, pageable);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Order> findByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
     }
 
     @Transactional

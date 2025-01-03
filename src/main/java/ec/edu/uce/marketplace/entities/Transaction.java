@@ -26,7 +26,7 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "service_id")
-    private ServiceEntity service; // Servicio contratado
+    private FreelanceService service; // Servicio contratado
 
     @Column(nullable = false)
     private BigDecimal amount; // Monto de la transacción

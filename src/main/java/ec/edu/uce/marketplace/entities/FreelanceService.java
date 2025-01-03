@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Table(name = "services")
 @Data
 @NoArgsConstructor
-public class ServiceEntity {
+public class FreelanceService {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
