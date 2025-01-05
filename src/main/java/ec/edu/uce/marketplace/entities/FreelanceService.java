@@ -2,15 +2,10 @@ package ec.edu.uce.marketplace.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "services")
-@Data
-@NoArgsConstructor
 public class FreelanceService {
 
     @Id
@@ -34,4 +29,49 @@ public class FreelanceService {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // Freelancer que ofrece el servicio
+
+    // Constructor sin argumentos
+    public FreelanceService() {
+    }
+
+    // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public User getUser () {
+        return user;
+    }
+
+    public void setUser (User user) {
+        this.user = user;
+    }
 }

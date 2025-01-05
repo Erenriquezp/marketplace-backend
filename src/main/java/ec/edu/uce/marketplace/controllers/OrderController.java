@@ -2,8 +2,8 @@ package ec.edu.uce.marketplace.controllers;
 
 import ec.edu.uce.marketplace.entities.Order;
 import ec.edu.uce.marketplace.services.OrderService;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/orders")
-@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     // Obtener todas las órdenes con paginación (Solo administradores)
     @PreAuthorize("hasRole('ROLE_ADMIN')")

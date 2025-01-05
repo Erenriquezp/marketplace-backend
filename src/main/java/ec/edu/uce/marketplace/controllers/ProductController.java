@@ -3,7 +3,6 @@ package ec.edu.uce.marketplace.controllers;
 import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.services.ProductService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/products")
-@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     // Obtener todos los productos con paginación (acceso público)
     @GetMapping

@@ -3,7 +3,6 @@ package ec.edu.uce.marketplace.controllers;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.UserService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     // Obtener todos los usuarios
     @GetMapping
