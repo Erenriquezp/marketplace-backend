@@ -10,4 +10,5 @@ public interface UserService {
     Optional<User> findById(Long id);
     User save(User user);
     void remove(Long id);
+    Optional<User> findByUsername(String username);
 }
