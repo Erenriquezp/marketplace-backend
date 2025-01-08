@@ -45,7 +45,6 @@ public class ProductController {
         return ResponseEntity.status(201).body(savedProduct);
     }
 
-
     // Actualizar un producto existente (solo el propietario del producto)
     @PreAuthorize("hasRole('ROLE_FREELANCER') and #productDetails.user.username == authentication.name")
     @PutMapping("/{id}")
