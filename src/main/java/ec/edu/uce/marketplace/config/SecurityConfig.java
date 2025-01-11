@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Deshabilitar CSRF para APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("api/users/**").permitAll()
                         .requestMatchers("api/freelancer-services").permitAll()
                         .requestMatchers("/api/auth/**").permitAll() // Permitir acceso público a rutas de autenticación
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
