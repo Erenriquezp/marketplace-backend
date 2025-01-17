@@ -1,12 +1,15 @@
 package ec.edu.uce.marketplace.controllers;
 
 import ec.edu.uce.marketplace.entities.FreelanceService;
+import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.FreelanceServiceService;
+import ec.edu.uce.marketplace.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class FreelanceServiceController {
 
     private final FreelanceServiceService freelancerServiceService;
+    private final UserService userService;
 
-    public FreelanceServiceController(FreelanceServiceService freelancerServiceService) {
+    public FreelanceServiceController(FreelanceServiceService freelancerServiceService, UserService userService) {
         this.freelancerServiceService = freelancerServiceService;
+        this.userService = userService;
     }
 
     // Obtener todos los servicios con paginación (acceso público)
@@ -36,25 +41,34 @@ public class FreelanceServiceController {
     // Crear un nuevo servicio (solo freelancers)
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @PostMapping
-    public ResponseEntity<FreelanceService> createService(@Valid @RequestBody FreelanceService freelancerService) {
-        return ResponseEntity.status(201).body(freelancerServiceService.save(freelancerService));
+    public ResponseEntity<FreelanceService> createService(@Valid @RequestBody FreelanceService freelancerService, Authentication authentication) {
+        // Obtener el usuario autenticado
+        String username = authentication.getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Asociar el servicio con el usuario autenticado
+        freelancerService.setUser (user);
+        FreelanceService savedService = freelancerServiceService.save(freelancerService);
+
+        return ResponseEntity.status(201).body(savedService);
     }
 
     // Actualizar un servicio existente (solo el propietario del servicio)
-//    @PreAuthorize("hasRole('ROLE_FREELANCER') and #serviceDetails.user.username == authentication.name")
-//    @PutMapping("/{id}")
-//    public ResponseEntity<FreelanceService> updateService(
-//            @PathVariable Long id, @Valid @RequestBody FreelanceService serviceDetails) {
-//
-//        return freelancerServiceService.findById(id)
-//                .map(service -> {
-//                    service.setName(serviceDetails.getName());
-//                    service.setDescription(serviceDetails.getDescription());
-//                    service.setPrice(serviceDetails.getPrice());
-//                    return ResponseEntity.ok(freelancerServiceService.save(service));
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
+    @PreAuthorize("hasRole('ROLE_FREELANCER') and #serviceDetails.user.username == authentication.name")
+    @PutMapping("/{id}")
+    public ResponseEntity<FreelanceService> updateService(
+            @PathVariable Long id, @Valid @RequestBody FreelanceService serviceDetails) {
+
+        return freelancerServiceService.findById(id)
+                .map(service -> {
+                    service.setName(serviceDetails.getName());
+                    service.setDescription(serviceDetails.getDescription());
+                    service.setPrice(serviceDetails.getPrice());
+                    return ResponseEntity.ok(freelancerServiceService.save(service));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     // Eliminar un servicio (solo administradores)
     @PreAuthorize("hasRole('ROLE_ADMIN')")

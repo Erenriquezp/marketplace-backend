@@ -47,7 +47,7 @@ public class UserController {
                 .map(user -> {
                     user.setUsername(userDetails.getUsername());
                     user.setPassword(userDetails.getPassword());
-                    user.setRole(userDetails.getRole());
+                    user.setRoles(userDetails.getRoles());
                     User updatedUser = userService.save(user);
                     return ResponseEntity.ok(updatedUser);
                 })

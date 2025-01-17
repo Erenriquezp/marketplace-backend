@@ -1,7 +1,20 @@
 package ec.edu.uce.marketplace.entities;
 
-public enum Role {
-    ROLE_BUYER,
-    ROLE_FREELANCER,
-    ROLE_ADMIN
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "roles")
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
+    @NotBlank
+    private String name;
+
 }

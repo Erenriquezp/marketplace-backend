@@ -1,10 +1,20 @@
 package ec.edu.uce.marketplace.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -14,51 +24,44 @@ public class Order {
     private Long id;
 
     @Column(nullable = false)
-    @NotNull
-    private LocalDateTime orderDate;
+    @NotBlank
+    @Pattern(regexp = "^(FREELANCE|PRODUCT)$", message = "El tipo debe ser 'FREELANCE' o 'PRODUCT'")
+    private String type; // Tipo de orden: Freelance o Producto
 
     @Column(nullable = false)
     @NotBlank
-    private String status;
+    @Pattern(regexp = "^(PENDING|COMPLETED|CANCELLED)$", message = "El estado debe ser 'PENDING', 'COMPLETED' o 'CANCELLED'")
+    private String status; // Estado de la orden
+
+    @Column(name = "order_date", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime orderDate; // Fecha en la que se creó la orden
+
+    @Column(name = "completion_date")
+    private LocalDateTime completionDate; // Fecha en la que se completó la orden
+
+    @Column(nullable = false)
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    private BigDecimal amount; // Monto total de la orden
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Usuario asociado a la orden
+    @JsonBackReference
+    private User user; // Usuario que realizó la orden
 
-    // Constructor sin argumentos
-    public Order() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "freelance_service_id")
+    private FreelanceService freelanceService; // Servicio freelance relacionado (opcional)
 
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product; // Producto relacionado (opcional)
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String notes; // Notas adicionales sobre la orden
 
-    public LocalDateTime getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDateTime orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public User getUser () {
-        return user;
-    }
-
-    public void setUser (User user) {
-        this.user = user;
-    }
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt; // Fecha de última actualización
 }

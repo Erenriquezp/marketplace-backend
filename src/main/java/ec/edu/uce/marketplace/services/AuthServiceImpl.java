@@ -3,6 +3,7 @@ package ec.edu.uce.marketplace.services;
 import ec.edu.uce.marketplace.config.JwtTokenProvider;
 import ec.edu.uce.marketplace.dtos.AuthResponseDto;
 import ec.edu.uce.marketplace.dtos.LoginDto;
+import ec.edu.uce.marketplace.entities.Role;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -37,12 +40,19 @@ public class AuthServiceImpl implements AuthService {
         // 02 - Generar el token
         String token = jwtTokenProvider.generateToken(authentication);
 
-        // 03 - Obtener el rol del usuario desde la base de datos
+        // 03 - Obtener el usuario desde la base de datos
         User user = userRepository.findByUsername(loginDto.getUsername()).orElseThrow(
                 () -> new RuntimeException("Usuario no encontrado")
         );
 
-        // 04 - Retornar el token y el rol en el DTO de respuesta
-        return new AuthResponseDto(token, user.getRole());
+        // 04 - Extraer los roles como una lista de nombres de roles
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .toList();
+        //
+        Long userId = user.getId();
+        // 05 - Retornar el token y los roles en el DTO de respuesta
+        return new AuthResponseDto(token, roles, userId);
     }
+
 }

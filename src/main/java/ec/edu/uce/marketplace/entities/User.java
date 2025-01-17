@@ -3,8 +3,16 @@ package ec.edu.uce.marketplace.entities;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import java.util.List;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -23,57 +31,41 @@ public class User {
     @Size(min = 6)
     private String password;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, unique = true, length = 100)
     @NotBlank
-    @Pattern(regexp = "^(ROLE_ADMIN|ROLE_USER|ROLE_FREELANCER)$")
-    private String role;
+    @Email
+    private String email;
+
+    @Column(length = 15)
+    @Pattern(regexp = "^[+]?[0-9]*$")
+    private String phoneNumber;
+
+    @ManyToMany(fetch = FetchType.EAGER) // Cargar roles con el usuario
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = false)
+    private Double wallet = 0.0;
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    @Column(nullable = false)
+    private Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Indica que esta es la parte "gestionada" de la relación
+    @JsonManagedReference
     private List<Product> products;
-
-    // Constructor sin argumentos
-    public User() {
-    }
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
 }
