@@ -49,7 +49,7 @@ public class Product {
     private Set<@Size(max = 30) String> tags; // Nuevos tags asociados al producto
 
     @Column(name = "file_url")
-    private String fileUrl; // URL opcional para archivos relacionados al producto
+    private String fileUrl; // URL opcional para archivos relacionados con el producto
 
     @Column(nullable = false)
     private Boolean isActive = true; // Indica si el producto está activo

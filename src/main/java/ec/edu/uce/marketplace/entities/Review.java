@@ -1,70 +1,48 @@
 package ec.edu.uce.marketplace.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "reviews")
 public class Review {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user; // Usuario que dejó la reseña
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "product_id")
+    private Product product; // Producto relacionado a la reseña (opcional)
+
+    @ManyToOne
+    @JoinColumn(name = "freelance_service_id")
+    private FreelanceService freelanceService; // Servicio freelance relacionado (opcional)
 
     @Column(nullable = false)
-    private String comment;
+    @NotNull
+    @Min(1)
+    @Max(5)
+    private Integer rating; // Calificación entre 1 y 5
 
-    @Column(nullable = false)
-    private int rating; // Rango de 1 a 5
+    @Column(columnDefinition = "TEXT")
+    @Size(max = 500)
+    private String comment; // Comentario opcional (máximo 500 caracteres)
 
-    // Constructor sin argumentos
-    public Review() {
-    }
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser () {
-        return user;
-    }
-
-    public void setUser (User user) {
-        this.user = user;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt; // Fecha de creación de la reseña
 }
