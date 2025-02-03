@@ -11,4 +11,6 @@ public interface ProductService {
     Optional<Product> findById(Long id);
     Product save(Product product);
     void remove(Long id);
+    // Nuevo método para buscar productos por categoría
+    Page<Product> findByCategory(String category, Pageable pageable);
 }

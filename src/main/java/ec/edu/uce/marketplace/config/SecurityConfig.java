@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("api/users/**").permitAll()
-                        .requestMatchers("api/freelancer-services").permitAll()
+                        .requestMatchers("api/freelancer-services/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll() // Permitir acceso público a rutas de autenticación
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated() // Resto de rutas requiere autenticación

@@ -55,7 +55,8 @@ public class FreelanceServiceController {
     }
 
     // Actualizar un servicio existente (solo el propietario del servicio)
-    @PreAuthorize("hasRole('ROLE_FREELANCER') and #serviceDetails.user.username == authentication.name")
+//    @PreAuthorize("hasRole('ROLE_FREELANCER') and #serviceDetails.user.username == authentication.name")
+    @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @PutMapping("/{id}")
     public ResponseEntity<FreelanceService> updateService(
             @PathVariable Long id, @Valid @RequestBody FreelanceService serviceDetails) {
@@ -71,7 +72,7 @@ public class FreelanceServiceController {
     }
 
     // Eliminar un servicio (solo administradores)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         freelancerServiceService.remove(id);

@@ -41,4 +41,10 @@ public class ProductServiceImpl implements ProductService {
     public void remove(Long id) {
         productRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Product> findByCategory(String category, Pageable pageable) {
+        return productRepository.findByCategory(category, pageable);
+    }
 }

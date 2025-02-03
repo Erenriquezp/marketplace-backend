@@ -24,12 +24,10 @@ public class ProductController {
         this.userService = userService;
     }
 
-    // Obtener un usuario por ID
+    // Obtener producto (acceso público)
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable Long id) {
-        return productService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(productService.findById(id).orElseThrow());
     }
 
     // Obtener todos los productos con paginación (acceso público)
@@ -54,7 +52,8 @@ public class ProductController {
     }
 
     // Actualizar un producto existente (solo el propietario del producto)
-    @PreAuthorize("hasRole('ROLE_FREELANCER') and #productDetails.user.username == authentication.name")
+//    @PreAuthorize("hasRole('ROLE_FREELANCER') and #productDetails.user.username == authentication.name")
+    @PreAuthorize("hasRole('ROLE_FREELANCER') ")
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product productDetails) {
         return productService.findById(id)
@@ -62,16 +61,25 @@ public class ProductController {
                     product.setName(productDetails.getName());
                     product.setDescription(productDetails.getDescription());
                     product.setPrice(productDetails.getPrice());
+                    product.setCategory(productDetails.getCategory());
+                    product.setTags(productDetails.getTags());
+                    product.setFileUrl(productDetails.getFileUrl());
+                    product.setIsActive(productDetails.getIsActive());
                     return ResponseEntity.ok(productService.save(product));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Eliminar un producto (solo administradores)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.remove(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-category")
+    public Page<Product> getProductsByCategory(@RequestParam String category, Pageable pageable) {
+        return productService.findByCategory(category, pageable);
     }
 }
