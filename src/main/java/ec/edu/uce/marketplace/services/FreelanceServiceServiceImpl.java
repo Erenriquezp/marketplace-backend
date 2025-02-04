@@ -1,7 +1,9 @@
 package ec.edu.uce.marketplace.services;
 
+import ec.edu.uce.marketplace.dtos.FreelanceServiceFilterDTO;
 import ec.edu.uce.marketplace.entities.FreelanceService;
 import ec.edu.uce.marketplace.repositories.FreelanceServiceRepository;
+import ec.edu.uce.marketplace.specifications.FreelanceServiceSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,5 +42,11 @@ public class FreelanceServiceServiceImpl implements FreelanceServiceService {
     @Override
     public void remove(Long id) {
         repository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<FreelanceService> findWithFilters(FreelanceServiceFilterDTO filters, Pageable pageable) {
+        return repository.findAll(FreelanceServiceSpecifications.applyFilters(filters), pageable);
     }
 }

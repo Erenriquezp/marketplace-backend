@@ -1,12 +1,15 @@
 package ec.edu.uce.marketplace.controllers;
 
+import ec.edu.uce.marketplace.dtos.ProductFilterDTO;
 import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.ProductService;
 import ec.edu.uce.marketplace.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -79,7 +82,20 @@ public class ProductController {
     }
 
     @GetMapping("/by-category")
-    public Page<Product> getProductsByCategory(@RequestParam String category, Pageable pageable) {
-        return productService.findByCategory(category, pageable);
+    public ResponseEntity<Page<Product>> getProductsByCategory(
+            @RequestParam String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name,asc") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")));
+        Page<Product> products = productService.findByCategory(category, pageable);
+
+        return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/search")
+    public Page<Product> searchProducts(@RequestBody ProductFilterDTO filters, Pageable pageable) {
+        return productService.findByFilters(filters, pageable);
     }
 }

@@ -1,7 +1,9 @@
 package ec.edu.uce.marketplace.services;
 
+import ec.edu.uce.marketplace.dtos.ProductFilterDTO;
 import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.repositories.ProductRepository;
+import ec.edu.uce.marketplace.specifications.ProductSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,5 +48,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findByCategory(category, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Product> findByFilters(ProductFilterDTO filters, Pageable pageable) {
+        return productRepository.findAll(ProductSpecifications.withFilters(filters), pageable);
     }
 }

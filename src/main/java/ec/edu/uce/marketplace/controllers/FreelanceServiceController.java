@@ -1,11 +1,13 @@
 package ec.edu.uce.marketplace.controllers;
 
+import ec.edu.uce.marketplace.dtos.FreelanceServiceFilterDTO;
 import ec.edu.uce.marketplace.entities.FreelanceService;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.FreelanceServiceService;
 import ec.edu.uce.marketplace.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,6 +68,7 @@ public class FreelanceServiceController {
                     service.setName(serviceDetails.getName());
                     service.setDescription(serviceDetails.getDescription());
                     service.setPrice(serviceDetails.getPrice());
+                    service.setSkillsRequired(serviceDetails.getSkillsRequired());
                     return ResponseEntity.ok(freelancerServiceService.save(service));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -77,5 +80,16 @@ public class FreelanceServiceController {
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         freelancerServiceService.remove(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<FreelanceService>> searchFreelanceServices(
+            @RequestBody FreelanceServiceFilterDTO filters,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FreelanceService> services = freelancerServiceService.findWithFilters(filters, pageable);
+        return ResponseEntity.ok(services);
     }
 }
