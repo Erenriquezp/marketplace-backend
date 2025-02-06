@@ -51,7 +51,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> findByFilters(ProductFilterDTO filters, Pageable pageable) {
-        return productRepository.findAll(ProductSpecifications.withFilters(filters), pageable);
+    public Page<Product> findByFilters(String category, String name, Pageable pageable) {
+        if (category != null && !category.isEmpty() && name != null && !name.isEmpty()) {
+            return productRepository.findByCategoryAndNameContainingIgnoreCase(category, name, pageable);
+        } else if (category != null && !category.isEmpty()) {
+            return productRepository.findByCategory(category, pageable);
+        } else if (name != null && !name.isEmpty()) {
+            return productRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else {
+            return productRepository.findAll(pageable); // Si no hay filtros, devuelve todos los productos
+        }
     }
 }

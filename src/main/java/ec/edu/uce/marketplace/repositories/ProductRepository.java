@@ -14,5 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByUserId(Long userId);
     Page<Product> findByCategory(String category, Pageable pageable);
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
-
+    // Buscar por nombre (coincidencias parciales)
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    // Buscar por nombre y categoría combinados
+    Page<Product> findByCategoryAndNameContainingIgnoreCase(String category, String name, Pageable pageable);
 }

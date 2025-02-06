@@ -1,6 +1,5 @@
 package ec.edu.uce.marketplace.controllers;
 
-import ec.edu.uce.marketplace.dtos.ProductFilterDTO;
 import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.ProductService;
@@ -86,16 +85,24 @@ public class ProductController {
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name,asc") String sort) {
+            @RequestParam(defaultValue = "name") String sort) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Product> products = productService.findByCategory(category, pageable);
 
         return ResponseEntity.ok(products);
     }
 
-    @PostMapping("/search")
-    public Page<Product> searchProducts(@RequestBody ProductFilterDTO filters, Pageable pageable) {
-        return productService.findByFilters(filters, pageable);
+    @GetMapping("/search")
+    public ResponseEntity<Page<Product>> searchProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> products = productService.findByFilters(category, name, pageable);
+
+        return ResponseEntity.ok(products);
     }
 }

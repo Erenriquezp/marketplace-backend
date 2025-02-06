@@ -2,6 +2,7 @@ package ec.edu.uce.marketplace.services;
 
 import ec.edu.uce.marketplace.dtos.FreelanceServiceFilterDTO;
 import ec.edu.uce.marketplace.entities.FreelanceService;
+import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.repositories.FreelanceServiceRepository;
 import ec.edu.uce.marketplace.specifications.FreelanceServiceSpecifications;
 import org.springframework.data.domain.Page;
@@ -48,5 +49,19 @@ public class FreelanceServiceServiceImpl implements FreelanceServiceService {
     @Override
     public Page<FreelanceService> findWithFilters(FreelanceServiceFilterDTO filters, Pageable pageable) {
         return repository.findAll(FreelanceServiceSpecifications.applyFilters(filters), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<FreelanceService> findByFilters(String category, String name, Pageable pageable) {
+        if (category != null && !category.isEmpty() && name != null && !name.isEmpty()) {
+            return repository.findBySkillsRequiredAndNameContainingIgnoreCase(category, name, pageable);
+        } //else if (category != null && !category.isEmpty()) {
+           // return repository.findByCategory(category, pageable);
+        //}
+        else if (name != null && !name.isEmpty()) {
+            return repository.findByNameContainingIgnoreCase(name, pageable);
+        } else {
+            return repository.findAll(pageable); // Si no hay filtros, devuelve todos los productos
+        }
     }
 }

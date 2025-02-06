@@ -2,6 +2,7 @@ package ec.edu.uce.marketplace.services;
 
 import ec.edu.uce.marketplace.dtos.FreelanceServiceFilterDTO;
 import ec.edu.uce.marketplace.entities.FreelanceService;
+import ec.edu.uce.marketplace.entities.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,4 +14,6 @@ public interface FreelanceServiceService {
     FreelanceService save(FreelanceService freelanceService);
     void remove(Long id);
     Page<FreelanceService> findWithFilters(FreelanceServiceFilterDTO filters, Pageable pageable);
+    Page<FreelanceService> findByFilters(String category, String name, Pageable pageable);
+
 }
