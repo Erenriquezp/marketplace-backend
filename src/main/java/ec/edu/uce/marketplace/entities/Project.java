@@ -1,7 +1,7 @@
 package ec.edu.uce.marketplace.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -51,11 +51,11 @@ public class Project {
     private LocalDate createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
-    private User client; // Cliente que creó el proyecto
+    private User user; // Cliente que creó el proyecto
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private Set<ProjectApplication> applications = new HashSet<>(); // Postulaciones de freelancers
 }

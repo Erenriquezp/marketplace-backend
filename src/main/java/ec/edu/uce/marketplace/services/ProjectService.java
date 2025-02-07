@@ -4,6 +4,8 @@ import ec.edu.uce.marketplace.entities.Project;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.repositories.ProjectRepository;
 import ec.edu.uce.marketplace.repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +28,27 @@ public class ProjectService {
         User client = userRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
-        project.setClient(client);
+        project.setUser(client);
         return projectRepository.save(project);
     }
 
-    public List<Project> getProjectsByClient(Long clientId) {
-        return projectRepository.findByClientId(clientId);
+    public Page<Project> getProjectsByClient(Long clientId, Pageable pagable) {
+        return projectRepository.findByUserId(clientId, pagable);
     }
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
+    }
+
+    public Optional<Project> findById(Long projectId) {
+        return projectRepository.findById(projectId);
+    }
+
+    public Project saveProject(Project project) {
+        return projectRepository.save(project);
+    }
+
+    public void deleteProject(Long projectId) {
+        projectRepository.deleteById(projectId);
     }
 }

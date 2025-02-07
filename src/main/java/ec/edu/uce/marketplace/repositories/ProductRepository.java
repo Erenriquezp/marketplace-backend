@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByUserId(Long userId);
+    Page<Product> findByUserId(Long userId, Pageable pageable);
     Page<Product> findByCategory(String category, Pageable pageable);
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
     // Buscar por nombre (coincidencias parciales)

@@ -1,22 +1,20 @@
 package ec.edu.uce.marketplace.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "project_applications")
+@Table(name = "project_applications", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"project_id", "freelancer_id"}) // Evita postulaciones duplicadas
+})
 public class ProjectApplication {
 
     @Id
@@ -25,26 +23,23 @@ public class ProjectApplication {
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    @JsonBackReference
-    private Project project; // Proyecto al que se postula
+    private Project project;
 
     @ManyToOne
     @JoinColumn(name = "freelancer_id", nullable = false)
-    private User freelancer; // Freelancer que se postula
+    private User freelancer;
+
+    @Column(columnDefinition = "TEXT")
+    private String proposal;
 
     @Column(nullable = false)
-    @NotBlank
-    private String proposal; // Propuesta del freelancer
-
-    @Column(nullable = false)
-    @NotNull
-    private BigDecimal proposedBudget; // Presupuesto propuesto por el freelancer
+    private BigDecimal proposedBudget;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15)
-    private ApplicationStatus status = ApplicationStatus.PENDING; // Estado de la postulación
+    @Column(nullable = false)
+    private ApplicationStatus status = ApplicationStatus.PENDING; // Por defecto, pendiente
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime appliedAt;
 }
