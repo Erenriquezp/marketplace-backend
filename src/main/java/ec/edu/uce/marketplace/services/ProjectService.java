@@ -9,9 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @Transactional
 public class ProjectService {
@@ -24,6 +21,9 @@ public class ProjectService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * 📌 Crear un nuevo proyecto para un cliente autenticado.
+     */
     public Project createProject(Long clientId, Project project) {
         User client = userRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
@@ -32,23 +32,59 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public Page<Project> getProjectsByClient(Long clientId, Pageable pagable) {
-        return projectRepository.findByUserId(clientId, pagable);
+    /**
+     * 📌 Obtener los proyectos creados por un cliente (con paginación).
+     */
+    @Transactional(readOnly = true)
+    public Page<Project> getProjectsByClient(Long clientId, Pageable pageable) {
+        return projectRepository.findByUserId(clientId, pageable);
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    /**
+     * 📌 Obtener todos los proyectos disponibles (para freelancers).
+     */
+    @Transactional(readOnly = true)
+    public Page<Project> getAllProjects(Pageable pageable) {
+        return projectRepository.findAll(pageable);
     }
 
-    public Optional<Project> findById(Long projectId) {
-        return projectRepository.findById(projectId);
+    /**
+     * 📌 Buscar un proyecto por ID.
+     */
+    @Transactional(readOnly = true)
+    public Project findById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
     }
 
-    public Project saveProject(Project project) {
+    /**
+     * 📌 Un cliente autenticado puede actualizar solo sus propios proyectos.
+     */
+    public Project updateProject(Long clientId, Long projectId, Project projectDetails) {
+        Project project = findById(projectId);
+
+        if (!project.getUser().getId().equals(clientId)) {
+            throw new RuntimeException("No tienes permisos para modificar este proyecto.");
+        }
+
+        project.setTitle(projectDetails.getTitle());
+        project.setDescription(projectDetails.getDescription());
+        project.setEstimatedBudget(projectDetails.getEstimatedBudget());
+        project.setDeadline(projectDetails.getDeadline());
+
         return projectRepository.save(project);
     }
 
-    public void deleteProject(Long projectId) {
-        projectRepository.deleteById(projectId);
+    /**
+     * 📌 Un cliente autenticado puede eliminar solo sus propios proyectos.
+     */
+    public void deleteProject(Long clientId, Long projectId) {
+        Project project = findById(projectId);
+
+        if (!project.getUser().getId().equals(clientId)) {
+            throw new RuntimeException("No tienes permisos para eliminar este proyecto.");
+        }
+
+        projectRepository.delete(project);
     }
 }

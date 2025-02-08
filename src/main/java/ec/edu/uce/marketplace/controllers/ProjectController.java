@@ -13,8 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
@@ -28,22 +26,18 @@ public class ProjectController {
     }
 
     /**
-     * 📌 Un CLIENTE (ROLE_USER) autenticado puede crear un proyecto.
+     * 📌 Un CLIENTE (`ROLE_USER`) autenticado puede crear un proyecto.
      */
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Project> createProject(@RequestBody Project project, Authentication authentication) {
-        // Obtener usuario autenticado
-        String username = authentication.getName();
-        User client = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+        User client = getAuthenticatedUser(authentication);
         Project savedProject = projectService.createProject(client.getId(), project);
         return ResponseEntity.status(201).body(savedProject);
     }
 
     /**
-     * 📌 Un CLIENTE autenticado puede ver solo sus proyectos.
+     * 📌 Un CLIENTE autenticado puede ver solo sus propios proyectos.
      */
     @GetMapping("/my-projects")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -53,11 +47,7 @@ public class ProjectController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title") String sort) {
 
-        // Obtener usuario autenticado
-        String username = authentication.getName();
-        User client = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+        User client = getAuthenticatedUser(authentication);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Project> projects = projectService.getProjectsByClient(client.getId(), pageable);
 
@@ -65,44 +55,34 @@ public class ProjectController {
     }
 
     /**
-     * 📌 Obtener todos los proyectos (para freelancers).
+     * 📌 Obtener todos los proyectos disponibles (para freelancers).
      */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
-    public ResponseEntity<List<Project>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    public ResponseEntity<Page<Project>> getAllProjects(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Project> projects = projectService.getAllProjects(pageable);
+
+        return ResponseEntity.ok(projects);
     }
 
     /**
      * 📌 Un CLIENTE autenticado puede actualizar solo sus propios proyectos.
      */
-    @PutMapping("/{projectId}/update")
+    @PutMapping("/{projectId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Project> updateProject(
             @PathVariable Long projectId,
             @RequestBody Project projectDetails,
             Authentication authentication) {
 
-        // Obtener usuario autenticado
-        String username = authentication.getName();
-        User client = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User client = getAuthenticatedUser(authentication);
+        Project updatedProject = projectService.updateProject(client.getId(), projectId, projectDetails);
 
-        // Buscar el proyecto y verificar que pertenece al usuario autenticado
-        Project project = projectService.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
-
-        if (!project.getUser().getId().equals(client.getId())) {
-            return ResponseEntity.status(403).body(null); // FORBIDDEN
-        }
-
-        // Actualizar los datos del proyecto
-        project.setTitle(projectDetails.getTitle());
-        project.setDescription(projectDetails.getDescription());
-        project.setEstimatedBudget(projectDetails.getEstimatedBudget());
-        project.setDeadline(projectDetails.getDeadline());
-
-        Project updatedProject = projectService.saveProject(project);
         return ResponseEntity.ok(updatedProject);
     }
 
@@ -112,20 +92,17 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Void> deleteProject(@PathVariable Long projectId, Authentication authentication) {
-        // Obtener usuario autenticado
-        String username = authentication.getName();
-        User client = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User client = getAuthenticatedUser(authentication);
+        projectService.deleteProject(client.getId(), projectId);
 
-        // Buscar el proyecto y verificar que pertenece al usuario autenticado
-        Project project = projectService.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
-
-        if (!project.getUser().getId().equals(client.getId())) {
-            return ResponseEntity.status(403).build(); // FORBIDDEN
-        }
-
-        projectService.deleteProject(projectId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 📌 Método reutilizable para obtener el usuario autenticado.
+     */
+    private User getAuthenticatedUser(Authentication authentication) {
+        return userService.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }
