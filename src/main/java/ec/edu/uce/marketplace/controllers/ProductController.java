@@ -38,6 +38,19 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAll(pageable));
     }
 
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<Page<Product>> getProductsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Product> products = productService.findByUserId(userId, pageable);
+
+        return ResponseEntity.ok(products);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product, Authentication authentication) {
@@ -54,7 +67,6 @@ public class ProductController {
     }
 
     // Actualizar un producto existente (solo el propietario del producto)
-//    @PreAuthorize("hasRole('ROLE_FREELANCER') and #productDetails.user.username == authentication.name")
     @PreAuthorize("hasRole('ROLE_FREELANCER') ")
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product productDetails) {

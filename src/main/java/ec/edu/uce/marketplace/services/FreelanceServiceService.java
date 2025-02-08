@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface FreelanceServiceService {
     Page<FreelanceService> findAll(Pageable pageable);
+    Page<FreelanceService> findByUserId(Long userId, Pageable pageable);
     Optional<FreelanceService> findById(Long id);
     FreelanceService save(FreelanceService freelanceService);
     void remove(Long id);

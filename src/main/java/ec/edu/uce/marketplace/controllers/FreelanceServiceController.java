@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,19 @@ public class FreelanceServiceController {
     @GetMapping
     public ResponseEntity<Page<FreelanceService>> getAllServices(Pageable pageable) {
         return ResponseEntity.ok(freelancerServiceService.findAll(pageable));
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<Page<FreelanceService>> getServicesByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<FreelanceService> services = freelancerServiceService.findByUserId(userId, pageable);
+
+        return ResponseEntity.ok(services);
     }
 
     // Obtener un servicio por ID (acceso público)

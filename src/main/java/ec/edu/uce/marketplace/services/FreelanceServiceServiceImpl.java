@@ -27,6 +27,11 @@ public class FreelanceServiceServiceImpl implements FreelanceServiceService {
         return repository.findAll(pageable);
     }
 
+    @Override
+    public Page<FreelanceService> findByUserId(Long userId, Pageable pageable) {
+        return repository.findByUserId(userId, pageable);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<FreelanceService> findById(Long id) {
@@ -51,17 +56,9 @@ public class FreelanceServiceServiceImpl implements FreelanceServiceService {
         return repository.findAll(FreelanceServiceSpecifications.applyFilters(filters), pageable);
     }
 
-    @Transactional(readOnly = true)
+    @Override
     public Page<FreelanceService> findByFilters(String category, String name, Pageable pageable) {
-        if (category != null && !category.isEmpty() && name != null && !name.isEmpty()) {
-            return repository.findBySkillsRequiredAndNameContainingIgnoreCase(category, name, pageable);
-        } //else if (category != null && !category.isEmpty()) {
-           // return repository.findByCategory(category, pageable);
-        //}
-        else if (name != null && !name.isEmpty()) {
-            return repository.findByNameContainingIgnoreCase(name, pageable);
-        } else {
-            return repository.findAll(pageable); // Si no hay filtros, devuelve todos los productos
-        }
+        return null;
     }
+
 }
