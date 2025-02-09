@@ -16,5 +16,5 @@ public interface FreelanceServiceService {
     void remove(Long id);
     Page<FreelanceService> findWithFilters(FreelanceServiceFilterDTO filters, Pageable pageable);
     Page<FreelanceService> findByFilters(String category, String name, Pageable pageable);
-
+    Page<FreelanceService> findByName(String name, Pageable pageable);
 }

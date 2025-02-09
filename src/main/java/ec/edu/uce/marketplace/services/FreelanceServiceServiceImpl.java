@@ -61,4 +61,9 @@ public class FreelanceServiceServiceImpl implements FreelanceServiceService {
         return null;
     }
 
+    @Override
+    public Page<FreelanceService> findByName(String name, Pageable pageable) {
+        return repository.findByName(name, pageable);
+    }
+
 }

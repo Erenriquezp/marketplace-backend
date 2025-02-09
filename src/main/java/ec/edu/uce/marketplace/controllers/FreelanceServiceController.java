@@ -2,7 +2,6 @@ package ec.edu.uce.marketplace.controllers;
 
 import ec.edu.uce.marketplace.dtos.FreelanceServiceFilterDTO;
 import ec.edu.uce.marketplace.entities.FreelanceService;
-import ec.edu.uce.marketplace.entities.Product;
 import ec.edu.uce.marketplace.entities.User;
 import ec.edu.uce.marketplace.services.FreelanceServiceService;
 import ec.edu.uce.marketplace.services.UserService;
@@ -28,12 +27,22 @@ public class FreelanceServiceController {
         this.userService = userService;
     }
 
-    // Obtener todos los servicios con paginación (acceso público)
+    /**
+     * 📌 Obtener todos los servicios con paginación (acceso público).
+     */
     @GetMapping
-    public ResponseEntity<Page<FreelanceService>> getAllServices(Pageable pageable) {
+    public ResponseEntity<Page<FreelanceService>> getAllServices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         return ResponseEntity.ok(freelancerServiceService.findAll(pageable));
     }
 
+    /**
+     * 📌 Obtener los servicios de un usuario específico.
+     */
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Page<FreelanceService>> getServicesByUserId(
             @PathVariable Long userId,
@@ -42,12 +51,12 @@ public class FreelanceServiceController {
             @RequestParam(defaultValue = "name") String sort) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<FreelanceService> services = freelancerServiceService.findByUserId(userId, pageable);
-
-        return ResponseEntity.ok(services);
+        return ResponseEntity.ok(freelancerServiceService.findByUserId(userId, pageable));
     }
 
-    // Obtener un servicio por ID (acceso público)
+    /**
+     * 📌 Obtener un servicio por su ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<FreelanceService> getServiceById(@PathVariable Long id) {
         return freelancerServiceService.findById(id)
@@ -55,31 +64,34 @@ public class FreelanceServiceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Crear un nuevo servicio (solo freelancers)
+    /**
+     * 📌 Crear un nuevo servicio (solo freelancers autenticados).
+     */
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @PostMapping
-    public ResponseEntity<FreelanceService> createService(@Valid @RequestBody FreelanceService freelancerService, Authentication authentication) {
-        // Obtener el usuario autenticado
-        String username = authentication.getName();
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public ResponseEntity<FreelanceService> createService(
+            @Valid @RequestBody FreelanceService freelancerService, Authentication authentication) {
 
-        // Asociar el servicio con el usuario autenticado
-        freelancerService.setUser (user);
+        User user = getAuthenticatedUser(authentication);
+        freelancerService.setUser(user);
         FreelanceService savedService = freelancerServiceService.save(freelancerService);
 
         return ResponseEntity.status(201).body(savedService);
     }
 
-    // Actualizar un servicio existente (solo el propietario del servicio)
-//    @PreAuthorize("hasRole('ROLE_FREELANCER') and #serviceDetails.user.username == authentication.name")
+    /**
+     * 📌 Actualizar un servicio existente (solo el propietario del servicio).
+     */
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @PutMapping("/{id}")
     public ResponseEntity<FreelanceService> updateService(
-            @PathVariable Long id, @Valid @RequestBody FreelanceService serviceDetails) {
+            @PathVariable Long id, @Valid @RequestBody FreelanceService serviceDetails, Authentication authentication) {
+
+        User user = getAuthenticatedUser(authentication);
 
         return freelancerServiceService.findById(id)
                 .map(service -> {
+
                     service.setName(serviceDetails.getName());
                     service.setDescription(serviceDetails.getDescription());
                     service.setPrice(serviceDetails.getPrice());
@@ -89,14 +101,19 @@ public class FreelanceServiceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Eliminar un servicio (solo administradores)
+    /**
+     * 📌 Eliminar un servicio (solo el propietario del servicio).
+     */
     @PreAuthorize("hasRole('ROLE_FREELANCER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteService(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteService(@PathVariable Long id, Authentication authentication) {
         freelancerServiceService.remove(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * 📌 Buscar servicios con filtros (categoría, nombre, habilidades, etc.).
+     */
     @PostMapping("/search")
     public ResponseEntity<Page<FreelanceService>> searchFreelanceServices(
             @RequestBody FreelanceServiceFilterDTO filters,
@@ -104,20 +121,28 @@ public class FreelanceServiceController {
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<FreelanceService> services = freelancerServiceService.findWithFilters(filters, pageable);
-        return ResponseEntity.ok(services);
+        return ResponseEntity.ok(freelancerServiceService.findWithFilters(filters, pageable));
     }
 
+    /**
+     * 📌 Buscar servicios por categoría o nombre.
+     */
     @GetMapping("/search")
-    public ResponseEntity<Page<FreelanceService>> searchProducts(
+    public ResponseEntity<Page<FreelanceService>> searchServicesByCategoryOrName(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<FreelanceService> products = freelancerServiceService.findByFilters(category, name, pageable);
+        return ResponseEntity.ok(freelancerServiceService.findByName(name, pageable));
+    }
 
-        return ResponseEntity.ok(products);
+    /**
+     * 📌 Método privado para obtener el usuario autenticado.
+     */
+    private User getAuthenticatedUser(Authentication authentication) {
+        return userService.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }

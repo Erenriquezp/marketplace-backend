@@ -21,4 +21,5 @@ public interface FreelanceServiceRepository extends JpaRepository<FreelanceServi
     // Buscar por nombre y categoría combinados
     Page<FreelanceService> findBySkillsRequiredAndNameContainingIgnoreCase(List<String> skillsRequired, @NotBlank @Size(min = 3, max = 100) String name, Pageable pageable);
 
+    Page<FreelanceService> findByName(String name, Pageable pageable);
 }
