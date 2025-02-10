@@ -16,8 +16,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:4200") // Cambia esto si el frontend está en otro puerto o dominio
-                        .allowedOrigins("https://marketplace-backend-production.up.railway.app/")
+                        .allowedOrigins("*") // Cambia esto si el frontend está en otro puerto o dominio
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
