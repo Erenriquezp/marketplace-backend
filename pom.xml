@@ -117,8 +117,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>21</source>  <!-- Ajusta la versión de Java según tu entorno -->
-                    <target>21</target>
+                    <source>17</source>  <!-- Ajusta la versión de Java según tu entorno -->
+                    <target>17</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
