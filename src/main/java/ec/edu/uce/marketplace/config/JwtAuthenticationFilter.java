@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // This method is executed for every request intercepted by the filter.
-    //And, extract the token from the request header and validate the token.
+    // And, extract the token from the request header and validate the token.
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
