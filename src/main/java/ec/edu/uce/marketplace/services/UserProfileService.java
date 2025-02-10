@@ -27,11 +27,12 @@ public class UserProfileService {
             throw new RuntimeException("Usuario no encontrado");
         }
 
-        System.out.println(userOptional.get().getUpdatedAt());
         User user = userOptional.get();
 
-        UserProfile userProfile = userProfileRepository.findById(userId).orElse(new UserProfile());
-        userProfile.setUser(user);
+// Buscar perfil por user_id en lugar de por ID del perfil
+        Optional<UserProfile> existingProfile = userProfileRepository.findByUser(user);
+
+        UserProfile userProfile = existingProfile.orElse(new UserProfile());
         userProfile.setCountry(userProfileDto.getCountry());
         userProfile.setCountryFlagUrl(userProfileDto.getCountryFlagUrl());
         userProfile.setPresentation(userProfileDto.getPresentation());
