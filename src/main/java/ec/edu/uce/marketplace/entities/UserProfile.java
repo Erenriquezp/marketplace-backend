@@ -56,7 +56,7 @@ public class UserProfile {
 
     @ElementCollection
     @CollectionTable(name = "user_social_links", joinColumns = @JoinColumn(name = "profile_id"))
-    @MapKeyColumn(name = "platform")
+    @MapKeyColumn(name = "platform", nullable = true)
     @Column(name = "link")
     private Map<String, String> socialLinks; // Enlaces sociales (mapa: plataforma -> enlace)
 }

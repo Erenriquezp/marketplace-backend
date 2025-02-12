@@ -21,6 +21,7 @@ public class UserProfileService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public UserProfile createOrUpdateProfile(Long userId, UserProfileDto userProfileDto) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
@@ -29,10 +30,14 @@ public class UserProfileService {
 
         User user = userOptional.get();
 
-// Buscar perfil por user_id en lugar de por ID del perfil
-        Optional<UserProfile> existingProfile = userProfileRepository.findByUser(user);
+        // Buscar el perfil del usuario, si no existe, crear uno nuevo
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    UserProfile newProfile = new UserProfile();
+                    newProfile.setUser(user); // Relacionar con el usuario
+                    return newProfile;
+                });
 
-        UserProfile userProfile = existingProfile.orElse(new UserProfile());
         userProfile.setCountry(userProfileDto.getCountry());
         userProfile.setCountryFlagUrl(userProfileDto.getCountryFlagUrl());
         userProfile.setPresentation(userProfileDto.getPresentation());
